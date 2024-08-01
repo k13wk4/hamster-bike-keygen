@@ -1,13 +1,13 @@
 // ==UserScript==
-// @name        Hamster bike keygen simplified and accelerated
-// @version     1.1
+// @name        Hamster bike keygen debug
+// @version     1.2
 // @match       *://georg95.github.io/*
 // @grant       GM_xmlhttpRequest
 // @run-at      document-end
 // ==/UserScript==
 
-const APP_TOKEN = 'd28721be-fd2d-4b45-869e-9f253b554e50'
-const PROMO_ID = '43e35910-c168-4634-ad4f-52fd764a843f'
+const APP_TOKEN = 'd28721be-fd2d-4b45-869e-9f253b554e50';
+const PROMO_ID = '43e35910-c168-4634-ad4f-52fd764a843f';
 
 const PARAMS = new URLSearchParams(window.location.search);
 const USER_ID = PARAMS.get('id') || '';
@@ -23,10 +23,12 @@ async function start() {
     keyText.innerText = 'Generating...';
     try {
       const token = await login(generateClientId());
+      console.log('Login token:', token);
       const key = await generateKey(token);
       keyText.innerText = key || 'Failed to generate key';
     } catch (error) {
       keyText.innerText = 'Error: ' + error.message;
+      console.error('Error generating key:', error);
     }
     buttons.innerHTML = '';
     buttons.appendChild(startBtn);
@@ -35,7 +37,7 @@ async function start() {
   startBtn.onclick = () => {
     buttons.innerHTML = '';
     keygen();
-  }
+  };
 }
 
 function createLayout() {
@@ -82,6 +84,7 @@ async function login(clientId) {
       clientOrigin: 'deviceid'
     }
   });
+  console.log('Login response:', response);
   return response.clientToken;
 }
 
@@ -98,6 +101,7 @@ async function generateKey(clientToken) {
       promoId: PROMO_ID
     }
   });
+  console.log('Key generation response:', response);
   return response.promoCode;
 }
 
@@ -109,8 +113,14 @@ async function vmFetch(url, options) {
       headers: options.headers,
       data: typeof options.body === 'string' ? options.body : JSON.stringify(options.body),
       responseType: 'json',
-      onload: response => resolve(response.response),
-      onerror: response => reject(response.responseText || 'No internet?'),
+      onload: response => {
+        console.log('Fetch response:', response.responseText);
+        resolve(response.response);
+      },
+      onerror: response => {
+        console.error('Fetch error:', response.responseText);
+        reject(response.responseText || 'No internet?');
+      },
     });
   });
 }
