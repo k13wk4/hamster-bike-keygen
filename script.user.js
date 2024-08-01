@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name        Hamster bike keygen simplified
-// @version     1.0
+// @name        Hamster bike keygen simplified and accelerated
+// @version     1.1
 // @match       *://georg95.github.io/*
 // @grant       GM_xmlhttpRequest
 // @run-at      document-end
@@ -21,18 +21,20 @@ async function start() {
 
   async function keygen() {
     keyText.innerText = 'Generating...';
-    const token = await login(generateClientId());
-    const key = await generateKey(token);
-    keyText.innerText = key || 'Failed to generate key';
+    try {
+      const token = await login(generateClientId());
+      const key = await generateKey(token);
+      keyText.innerText = key || 'Failed to generate key';
+    } catch (error) {
+      keyText.innerText = 'Error: ' + error.message;
+    }
     buttons.innerHTML = '';
     buttons.appendChild(startBtn);
   }
 
   startBtn.onclick = () => {
     buttons.innerHTML = '';
-    keygen().catch(err => {
-      keyText.innerText = 'Error: ' + err;
-    });
+    keygen();
   }
 }
 
@@ -67,7 +69,7 @@ function createLayout() {
 }
 
 async function login(clientId) {
-  if (!clientId) throw new Error('no client id');
+  if (!clientId) throw new Error('No client ID');
   const response = await vmFetch('https://api.gamepromo.io/promo/login-client', {
     headers: {
       'content-type': 'application/json; charset=utf-8',
@@ -84,7 +86,7 @@ async function login(clientId) {
 }
 
 async function generateKey(clientToken) {
-  if (!clientToken) throw new Error('no access token');
+  if (!clientToken) throw new Error('No access token');
   const response = await vmFetch('https://api.gamepromo.io/promo/create-code', {
     headers: {
       'content-type': 'application/json; charset=utf-8',
